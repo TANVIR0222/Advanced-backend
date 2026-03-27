@@ -13,6 +13,9 @@ class ApiError extends Error {
     static badRequest(message = "Bad Request"){
         return new ApiError(HTTP_STATUS.BAD_REQUEST , message)
     }
+    static conflict(message = "Conflict"){
+        return new ApiError(HTTP_STATUS.CONFLICT , message)
+    }
 
 }
 
