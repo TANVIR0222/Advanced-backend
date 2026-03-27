@@ -16,6 +16,12 @@ class ApiError extends Error {
     static conflict(message = "Conflict"){
         return new ApiError(HTTP_STATUS.CONFLICT , message)
     }
+    static unauthorize(message = "Conflict"){
+        return new ApiError(HTTP_STATUS.UNAUTHORIZED , message)
+    }
+    static forbidden(message = "Forbidden"){
+        return new ApiError(HTTP_STATUS.FORBIDDEN , message)
+    }
 
 }
 
