@@ -66,8 +66,31 @@ const refresh = async(token) =>{
     const user =  await User.findById(decode?._id).select("+refreshToken")
     if(!user) throw ApiError.unauthorize(" User Not found")
     
-    if(user.refreshToken !== hashToken(token)) throw ApiError.unauthorize(" invalid refresh token")
+    if(user.refreshToken !== hashToken(token)) throw ApiError.unauthorize(" invalid refresh token");
+
+    const accessToken = generateAccessToken({id : user._id , role : user?.role});
+
+    const refreshToken = generateRefreshToken({id : user?._id})
+
+    user.refreshToken = hashToken(refreshToken)
+
+    //If you pass { validateBeforeSave: false }, Mongoose forcibly saves the data to the database without any checking or validation.
+    await User.save({validateBeforeSave : false})
+
+    const userObject = user.ToObjectId()
+    delete userObject.password
+    delete userObject.refreshToken
+
+    return {accessToken}
+
+}
+
+
+const logout = async(userId) => {
+    
+    await User.findByIdAndUpdate(userId,{refreshToken : null})
 
 }
 
 export { register };
+//#ChaiAuthProMax
