@@ -85,6 +85,23 @@ const refresh = async(token) =>{
 
 }
 
+const forgotPassword = async({email}) => {
+
+    const user = await User.findOne({email})
+    if(!user) throw ApiError.notfound(" User Not found")
+
+    const {rowToken , hashedToken} = generateResetToken();
+
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+
+    user.save();
+
+        // TODO send an email to user with token with : rowToken
+    
+
+}
+
 
 const logout = async(userId) => {
     

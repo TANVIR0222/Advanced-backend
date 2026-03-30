@@ -22,6 +22,9 @@ class ApiError extends Error {
     static forbidden(message = "Forbidden"){
         return new ApiError(HTTP_STATUS.FORBIDDEN , message)
     }
+    static notfound(message = "Not Found"){
+        return new ApiError(HTTP_STATUS.NOT_FOUND , message)
+    }
 
 }
 
