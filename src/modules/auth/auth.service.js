@@ -1,6 +1,8 @@
+import crypto from "crypto";
 import ApiError from "../../common/utils/api-error";
 import { generateAccessToken, generateRefreshToken, generateResetToken, verifyRefreshToken } from "../../common/utils/jwt.utils";
 import User from "./auth.model";
+
 
 const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex")
 
@@ -116,5 +118,5 @@ const logout = async(userId) => {
 
 }
 
-export { register };
+export { forgotPassword, login, logout, refresh, register };
 //#ChaiAuthProMax
