@@ -41,6 +41,13 @@ const login =  async({email , password } ) => {
     // check user verify or not 
     if(!user.isVerified) throw ApiError.forbidden("Please verify your email before login")
 
+
+    // check password 
+    const isMatchPass = await user.comparePassword(password)
+    if(!isMatchPass) throw ApiError.unauthorize("Invalid email or password")
+    
+
+
     // token 
 
     const accessToken = generateAccessToken({id : user?._id , role : user?.role})
@@ -97,7 +104,7 @@ const forgotPassword = async({email}) => {
 
     user.save();
 
-        // TODO send an email to user with token with : rowToken
+    // TODO send an email to user with token with : rowToken
     
 
 }
