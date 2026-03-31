@@ -1,12 +1,31 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
+import ApiError from '../utils/api-error.js';
 
-// Create a transporter using SMTP
-const transporter = nodemailer.createTransport({
-  host: "smtp.example.com",
-  port: 587,
-  secure: false, // use STARTTLS (upgrade connection to TLS after connecting)
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+const resend = new Resend("re_DfjXHQS3_Hd3r7Fb39GVT8dnx4XdCaJ8K");
+
+const verifyEmail = async({sendTo , subject , html}) =>{
+  try {
+    const { data  , error} = await resend.batch.send([
+      {
+        from: 'Acme <onboarding@resend.dev>',
+        to: sendTo,
+        subject: subject,
+        html: html,
+      },
+    ]);
+
+    if (error) {
+      console.error("Resend API Error:", error); 
+      throw ApiError.serviceUnavailable("Failed to send email via Resend");
+    }
+
+    return data;
+
+  } catch (error) {
+    console.error("Email Sending Catch Error:", error);
+    throw ApiError.serviceUnavailable("Email service is currently down");
+  }
+}
+
+export default verifyEmail
+

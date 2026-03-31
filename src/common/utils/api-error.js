@@ -11,7 +11,7 @@ class ApiError extends Error {
 
     //
     static badRequest(message = "Bad Request"){
-        return new ApiError(HTTP_STATUS , message)
+        return new ApiError(HTTP_STATUS.BAD_REQUEST , message)
     }
     static conflict(message = "Conflict"){
         return new ApiError(HTTP_STATUS.CONFLICT , message)
@@ -22,8 +22,11 @@ class ApiError extends Error {
     static forbidden(message = "Forbidden"){
         return new ApiError(HTTP_STATUS.FORBIDDEN , message)
     }
-    static notfound(message = "Not Found"){
+    static notFound(message = "Not Found"){
         return new ApiError(HTTP_STATUS.NOT_FOUND , message)
+    }
+    static serviceUnavailable(message = "Service Unavailable") {
+        return new ApiError(HTTP_STATUS.SERVICE_UNAVAILABLE, message);
     }
 
 }

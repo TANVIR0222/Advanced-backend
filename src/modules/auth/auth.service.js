@@ -1,5 +1,7 @@
 import crypto from "crypto";
+import verifyEmail from "../../common/config/email.js";
 import ApiError from "../../common/utils/api-error.js";
+import verifyEmailTemplate from "../../common/utils/email.template.js";
 import { generateAccessToken, generateRefreshToken, generateResetToken, verifyRefreshToken } from "../../common/utils/jwt.utils.js";
 import User from "./auth.model.js";
 
@@ -9,9 +11,13 @@ const hashToken = (token) => crypto.createHash("sha256").update(token).digest("h
 const register = async({name , email , password , role}) =>{
     //do user register 
 
+    console.log(email);
+    
+
 
     const existing = User.findOne({email})
-    if(existing) throw ApiError.conflict("Email All ready exist")
+    // if(existing) throw ApiError.conflict("Email All ready exist")
+    console.log(existing)
     
     const {rowToken , hashedToken} = generateResetToken()
 
@@ -23,7 +29,20 @@ const register = async({name , email , password , role}) =>{
         verificationsToken : hashedToken
     })
 
+    console.log(user);
+    
+    const VerifyEmailUrl = `${process.env.FRONTEND_URL}/verify-email?code=${user?._id}`;
+
+
     // TODO send an email to user with token with : rowToken 
+    await verifyEmail({
+        sendTo: email,
+        subject: "Verify email from binkeyit",
+        html: verifyEmailTemplate({
+          name: `${name}`,
+          url: VerifyEmailUrl,
+        }),
+      })
 
     // delete any value 
     // const modifyUserObject = user.toObject()
@@ -97,7 +116,7 @@ const refresh = async(token) =>{
 const forgotPassword = async({email}) => {
 
     const user = await User.findOne({email})
-    if(!user) throw ApiError.notfound(" User Not found")
+    if(!user) throw ApiError.notFound(" User Not found")
 
     const {rowToken , hashedToken} = generateResetToken();
 
