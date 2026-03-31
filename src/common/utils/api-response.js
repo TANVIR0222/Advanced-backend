@@ -1,4 +1,4 @@
-import HTTP_STATUS from "../constants/httpStatusCodes";
+import { HTTP_STATUS } from "../constants/http.status.codes.js";
 
 class ApiResponse {
 

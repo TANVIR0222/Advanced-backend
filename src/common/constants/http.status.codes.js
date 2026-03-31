@@ -11,4 +11,8 @@ const HTTP_STATUS = {
     SERVICE_UNAVAILABLE: 503
 };
 
-export default HTTP_STATUS;
+const DB_NAME = 'AD-commerce'
+
+export {
+    DB_NAME, HTTP_STATUS
+};

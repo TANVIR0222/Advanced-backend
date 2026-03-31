@@ -1,5 +1,5 @@
-import ApiResponse from '../../common/utils/api-response';
-import * as AuthServices from './auth.service';
+import ApiResponse from '../../common/utils/api-response.js';
+import * as AuthServices from './auth.service.js';
 const register = async (req ,res ) => {
     const user = await AuthServices.register(req.body)
     ApiResponse.create(res , "User register Success full" , user)

@@ -1,4 +1,4 @@
-import HTTP_STATUS from "../constants/httpStatusCodes"
+import { HTTP_STATUS } from "../constants/http.status.codes.js"
 
 class ApiError extends Error {
 
@@ -11,7 +11,7 @@ class ApiError extends Error {
 
     //
     static badRequest(message = "Bad Request"){
-        return new ApiError(HTTP_STATUS.BAD_REQUEST , message)
+        return new ApiError(HTTP_STATUS , message)
     }
     static conflict(message = "Conflict"){
         return new ApiError(HTTP_STATUS.CONFLICT , message)
