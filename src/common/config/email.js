@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
 import ApiError from '../utils/api-error.js';
 
-const resend = new Resend("re_DfjXHQS3_Hd3r7Fb39GVT8dnx4XdCaJ8K");
+const resend = new Resend("re_MAKoCGX2_6etRrKPuKbBmFAdDM2wta3Sv");
 
 const verifyEmail = async({sendTo , subject , html}) =>{
   try {

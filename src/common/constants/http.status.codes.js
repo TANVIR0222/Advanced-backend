@@ -11,7 +11,7 @@ const HTTP_STATUS = {
     SERVICE_UNAVAILABLE: 503
 };
 
-const DB_NAME = 'AD-commerce'
+const DB_NAME = 'Test_Auth'
 
 export {
     DB_NAME, HTTP_STATUS

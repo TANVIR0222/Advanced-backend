@@ -1,7 +1,5 @@
-import crypto from "crypto";
-import verifyEmail from "../../common/config/email.js";
+import crypto from 'node:crypto';
 import ApiError from "../../common/utils/api-error.js";
-import verifyEmailTemplate from "../../common/utils/email.template.js";
 import { generateAccessToken, generateRefreshToken, generateResetToken, verifyRefreshToken } from "../../common/utils/jwt.utils.js";
 import User from "./auth.model.js";
 
@@ -11,13 +9,13 @@ const hashToken = (token) => crypto.createHash("sha256").update(token).digest("h
 const register = async({name , email , password , role}) =>{
     //do user register 
 
-    console.log(email);
     
 
 
-    const existing = User.findOne({email})
-    // if(existing) throw ApiError.conflict("Email All ready exist")
-    console.log(existing)
+    const existing = await User.findOne({email})
+    console.log( '-------------',existing);
+    
+    if(existing) throw ApiError.conflict("Email All ready exist")
     
     const {rowToken , hashedToken} = generateResetToken()
 
@@ -29,62 +27,67 @@ const register = async({name , email , password , role}) =>{
         verificationsToken : hashedToken
     })
 
-    console.log(user);
     
-    const VerifyEmailUrl = `${process.env.FRONTEND_URL}/verify-email?code=${user?._id}`;
+    // const VerifyEmailUrl = `${process.env.FRONTEND_URL}/verify-email?code=${user?._id}`;
 
 
     // TODO send an email to user with token with : rowToken 
-    await verifyEmail({
-        sendTo: email,
-        subject: "Verify email from binkeyit",
-        html: verifyEmailTemplate({
-          name: `${name}`,
-          url: VerifyEmailUrl,
-        }),
-      })
+    // await verifyEmail({
+    //     sendTo: email,
+    //     subject: "Verify email from",
+    //     html: verifyEmailTemplate({
+    //       name: `${name}`,
+    //       url: VerifyEmailUrl,
+    //     }),
+    //   })
 
     // delete any value 
-    // const modifyUserObject = user.toObject()
-    // delete modifyUserObject._id
-    // delete modifyUserObject.role
-    //return modifyUserObject
+    const modifyUserObject = user.toObject()
+    delete modifyUserObject._id
+    delete modifyUserObject.role
+    delete modifyUserObject.password
+    return modifyUserObject
 
 }
 
 
-const login =  async({email , password } ) => {
+const login = async ({ email, password }) => {
 
-    const user = User.findOne({email}).select("+password")
-    if(!user) throw ApiError.unauthorize(" Invalid Email or password ")
+    console.log("Login attempt for:", email); // Removed password from logs for security
 
+    // 1. FIXED: Added 'await' to pause execution until the database responds
+    const user = await User.findOne({ email }).select("+password");
+    
+    // FIXED: Typo unauthorize -> unauthorized
+    if (!user) throw ApiError.unauthorized("Invalid Email or password");
 
     // check user verify or not 
-    if(!user.isVerified) throw ApiError.forbidden("Please verify your email before login")
-
+    // if(!user.isVerified) throw ApiError.forbidden("Please verify your email before login")
 
     // check password 
-    const isMatchPass = await user.comparePassword(password)
-    if(!isMatchPass) throw ApiError.unauthorize("Invalid email or password")
-    
+    const isPasswordValid = await user.comparePassword(password);
 
+    if (!isPasswordValid) {
+        throw ApiError.unauthorized("Invalid email or password");
+    }
 
-    // token 
+    // token generation
+    const accessToken = generateAccessToken({ id: user._id, role: user.role });
+    const refreshToken = generateRefreshToken({ id: user._id });
 
-    const accessToken = generateAccessToken({id : user?._id , role : user?.role})
-    const refreshToken = generateRefreshToken({id : user?._id})
+    // Assuming hashToken is imported/defined above
+    user.refreshToken = hashToken(refreshToken);
 
-    user.refreshToken = hashToken(refreshToken)
+    // 2. FIXED: Changed 'User' to 'user' so you save the specific document
+    // If you pass { validateBeforeSave: false }, Mongoose forcibly saves the data to the database without any checking or validation.
+    await user.save({ validateBeforeSave: false });
 
-    //If you pass { validateBeforeSave: false }, Mongoose forcibly saves the data to the database without any checking or validation.
-    await User.save({validateBeforeSave : false})
+    // 3. FIXED: Changed ToObjectId() to toObject()
+    const userObject = user.toObject();
+    delete userObject.password;
+    delete userObject.refreshToken;
 
-    const userObject = user.ToObjectId()
-    delete userObject.password
-    delete userObject.refreshToken
-
-    return {user : userObject , accessToken , refreshToken}
-
+    return { user: userObject, accessToken, refreshToken };
 }
 
 const refresh = async(token) =>{
