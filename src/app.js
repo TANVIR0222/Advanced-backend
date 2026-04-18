@@ -2,6 +2,7 @@ import cookieParser from "cookie-parser";
 import express from "express";
 import ApiError from "./common/utils/api-error.js";
 import authRoute from "./modules/auth/auth.route.js";
+import ownerRouter from "./modules/ipl-ms/router/owner.router.js";
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.use(cookieParser());
 
 // Routes
 app.use("/api/auth", authRoute);
+app.use("/api/owner", ownerRouter);
 
 // Catch-all for undefined routes
 app.all("{*path}", (req, res, next) => {
